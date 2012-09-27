@@ -803,12 +803,28 @@
       if (!callback) callback = this[name];
       Backbone.history.route(route, _.bind(function(fragment) {
         var args = this._extractParameters(route, fragment);
+
+        if( _(this.beforeFilter).isFunction() ){
+          this.beforeFilter.apply(this, args);
+        }
+
         callback && callback.apply(this, args);
+
+        if( _(this.afterFilter).isFunction() ){
+          this.afterFilter.apply(this, args);
+        }
+
         this.trigger.apply(this, ['route:' + name].concat(args));
         Backbone.history.trigger('route', this, name, args);
       }, this));
       return this;
     },
+
+    // Define a function as a before filter to be run before each route handler
+    beforeFilter: function() { },
+
+    // Define a function as an after filter to be run before each route handler
+    afterFilter: function() { },
 
     // Simple proxy to `Backbone.history` to save a fragment into the history.
     navigate: function(fragment, options) {
